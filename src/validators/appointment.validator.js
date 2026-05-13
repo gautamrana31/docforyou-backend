@@ -42,10 +42,12 @@ function validateCreateAppointment(req, res, next) {
 }
 
 function validateUpdateAppointmentStatus(req, res, next) {
-  const allowedStatuses = ['confirmed', 'cancelled', 'completed'];
+  const allowedStatuses = ['pending', 'accepted', 'declined', 'cancelled', 'completed'];
 
   if (!allowedStatuses.includes(req.body.status)) {
-    return next(new BadRequestError('Status must be confirmed, cancelled, or completed'));
+    return next(
+      new BadRequestError('Status must be pending, accepted, declined, cancelled, or completed')
+    );
   }
 
   return next();

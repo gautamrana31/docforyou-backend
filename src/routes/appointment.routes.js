@@ -14,14 +14,16 @@ router.get(
   requireAuth,
   appointmentController.getDoctorReceivedAppointments
 );
-router.get('/:appointmentId', requireAuth, appointmentController.getAppointmentById);
+router.get('/my', requireAuth, appointmentController.getAppointments);
+router.patch('/:appointmentId/accept', requireAuth, appointmentController.acceptAppointment);
+router.patch('/:appointmentId/decline', requireAuth, appointmentController.declineAppointment);
 router.patch(
   '/:appointmentId/status',
   requireAuth,
   validateUpdateAppointmentStatus,
   appointmentController.updateAppointmentStatus
 );
-router.get('/my', requireAuth, appointmentController.getAppointments);
+router.get('/:appointmentId', requireAuth, appointmentController.getAppointmentById);
 router.get('/', requireAuth, appointmentController.getAppointments);
 
 module.exports = router;

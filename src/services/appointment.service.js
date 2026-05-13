@@ -211,10 +211,34 @@ async function updateAppointmentStatus(userId, appointmentId, status) {
   return createAppointmentResponse(updatedAppointment);
 }
 
+async function respondToAppointment(userId, appointmentId, status) {
+  const appointment = await appointmentRepository.findAppointmentById(appointmentId);
+
+  if (!appointment) {
+    throw new NotFoundError('Appointment not found');
+  }
+
+  if (appointment.doctor.id !== userId) {
+    throw new ForbiddenError('Only the assigned doctor can accept or decline this appointment');
+  }
+
+  if (appointment.status !== 'pending') {
+    throw new BadRequestError('Only pending appointments can be accepted or declined');
+  }
+
+  const updatedAppointment = await appointmentRepository.updateAppointmentStatus(
+    appointment.id,
+    status
+  );
+
+  return createAppointmentResponse(updatedAppointment);
+}
+
 module.exports = {
   createAppointment,
   getAppointmentById,
   getDoctorReceivedAppointments,
   getAppointments,
+  respondToAppointment,
   updateAppointmentStatus,
 };

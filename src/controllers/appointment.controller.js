@@ -87,8 +87,50 @@ async function updateAppointmentStatus(req, res, next) {
   }
 }
 
+async function acceptAppointment(req, res, next) {
+  try {
+    const appointment = await appointmentService.respondToAppointment(
+      req.user.sub,
+      req.params.appointmentId,
+      'accepted'
+    );
+
+    res.json({
+      success: true,
+      message: 'Appointment accepted successfully',
+      data: {
+        appointment,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function declineAppointment(req, res, next) {
+  try {
+    const appointment = await appointmentService.respondToAppointment(
+      req.user.sub,
+      req.params.appointmentId,
+      'declined'
+    );
+
+    res.json({
+      success: true,
+      message: 'Appointment declined successfully',
+      data: {
+        appointment,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
+  acceptAppointment,
   createAppointment,
+  declineAppointment,
   getAppointmentById,
   getDoctorReceivedAppointments,
   getAppointments,
