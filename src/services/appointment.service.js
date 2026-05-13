@@ -153,6 +153,21 @@ async function getAppointments(userId) {
   return appointments.map(createAppointmentResponse);
 }
 
+async function getDoctorReceivedAppointments(userId) {
+  const user = await userRepository.findUserById(userId);
+
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (user.userType !== 'doctor') {
+    throw new ForbiddenError('Only doctors can view received appointments');
+  }
+
+  const appointments = await appointmentRepository.findAppointmentsByDoctor(user.id);
+  return appointments.map(createAppointmentResponse);
+}
+
 async function updateAppointmentStatus(userId, appointmentId, status) {
   const appointment = await appointmentRepository.findAppointmentById(appointmentId);
 
@@ -181,6 +196,7 @@ async function updateAppointmentStatus(userId, appointmentId, status) {
 
 module.exports = {
   createAppointment,
+  getDoctorReceivedAppointments,
   getAppointments,
   updateAppointmentStatus,
 };

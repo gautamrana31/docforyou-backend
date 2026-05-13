@@ -9,6 +9,11 @@ const {
 const router = express.Router();
 
 router.post('/', requireAuth, validateCreateAppointment, appointmentController.createAppointment);
+router.get(
+  '/doctor/received',
+  requireAuth,
+  appointmentController.getDoctorReceivedAppointments
+);
 router.patch(
   '/:appointmentId/status',
   requireAuth,

@@ -32,6 +32,22 @@ async function getAppointments(req, res, next) {
   }
 }
 
+async function getDoctorReceivedAppointments(req, res, next) {
+  try {
+    const appointments = await appointmentService.getDoctorReceivedAppointments(req.user.sub);
+
+    res.json({
+      success: true,
+      message: 'Doctor appointments fetched successfully',
+      data: {
+        appointments,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
 async function updateAppointmentStatus(req, res, next) {
   try {
     const appointment = await appointmentService.updateAppointmentStatus(
@@ -54,6 +70,7 @@ async function updateAppointmentStatus(req, res, next) {
 
 module.exports = {
   createAppointment,
+  getDoctorReceivedAppointments,
   getAppointments,
   updateAppointmentStatus,
 };
