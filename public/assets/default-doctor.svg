@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Default doctor profile image">
+  <rect width="256" height="256" rx="128" fill="#14b8a6"/>
+  <circle cx="128" cy="82" r="36" fill="#ffffff"/>
+  <path d="M58 214c9-42 36-66 70-66s61 24 70 66" fill="#ffffff"/>
+  <path d="M88 150h80v48H88z" fill="#e6fffb"/>
+  <path d="M120 162h16v12h12v16h-12v12h-16v-12h-12v-16h12z" fill="#14b8a6"/>
+</svg>
