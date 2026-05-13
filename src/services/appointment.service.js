@@ -168,6 +168,23 @@ async function getDoctorReceivedAppointments(userId) {
   return appointments.map(createAppointmentResponse);
 }
 
+async function getAppointmentById(userId, appointmentId) {
+  const appointment = await appointmentRepository.findAppointmentById(appointmentId);
+
+  if (!appointment) {
+    throw new NotFoundError('Appointment not found');
+  }
+
+  const isPatient = appointment.patient.id === userId;
+  const isDoctor = appointment.doctor.id === userId;
+
+  if (!isPatient && !isDoctor) {
+    throw new ForbiddenError('You are not allowed to view this appointment');
+  }
+
+  return createAppointmentResponse(appointment);
+}
+
 async function updateAppointmentStatus(userId, appointmentId, status) {
   const appointment = await appointmentRepository.findAppointmentById(appointmentId);
 
@@ -196,6 +213,7 @@ async function updateAppointmentStatus(userId, appointmentId, status) {
 
 module.exports = {
   createAppointment,
+  getAppointmentById,
   getDoctorReceivedAppointments,
   getAppointments,
   updateAppointmentStatus,

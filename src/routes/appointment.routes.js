@@ -14,6 +14,7 @@ router.get(
   requireAuth,
   appointmentController.getDoctorReceivedAppointments
 );
+router.get('/:appointmentId', requireAuth, appointmentController.getAppointmentById);
 router.patch(
   '/:appointmentId/status',
   requireAuth,
