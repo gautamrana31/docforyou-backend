@@ -7,8 +7,8 @@ const { connectDatabase } = require('./src/config/database');
 async function startServer() {
   await connectDatabase();
 
-  app.listen(env.port, () => {
-    console.log(`Server running on http://localhost:${env.port}`);
+  app.listen(env.port, env.host, () => {
+    console.log(`Server running on http://${env.host}:${env.port}`);
   });
 }
 
