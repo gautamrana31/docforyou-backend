@@ -1,4 +1,8 @@
 const { BadRequestError } = require('../utils/api-error');
+const {
+  allowedConsultationTypeIds,
+  normalizeConsultationType,
+} = require('../constants/consultation-types');
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
@@ -104,6 +108,38 @@ function validateDoctorSignup(req, res, next) {
     requireField(req.body, 'availableTimings', 'Available timings');
     requireField(req.body, 'practiceAddress', 'Practice address');
     requireField(req.body, 'medicalLicenseCertificate', 'Medical license certificate');
+
+    if (!Array.isArray(req.body.availableConsultationTypes)) {
+      throw new BadRequestError('Available consultation types are required');
+    }
+
+    if (req.body.availableConsultationTypes.length === 0) {
+      throw new BadRequestError('At least one consultation type is required');
+    }
+
+    const selectedTypes = new Set();
+
+    req.body.availableConsultationTypes.forEach((consultationType) => {
+      const type = normalizeConsultationType(consultationType.type);
+
+      if (!allowedConsultationTypeIds.includes(type)) {
+        throw new BadRequestError('Consultation type must be telemedicine, in_clinic, or home_visit');
+      }
+
+      if (selectedTypes.has(type)) {
+        throw new BadRequestError('Consultation type cannot be duplicated');
+      }
+
+      selectedTypes.add(type);
+
+      if (consultationType.fee === undefined || Number.isNaN(Number(consultationType.fee))) {
+        throw new BadRequestError(`${type} fee is required`);
+      }
+
+      if (Number(consultationType.fee) < 0) {
+        throw new BadRequestError(`${type} fee cannot be negative`);
+      }
+    });
 
     if (!isValidEmail(email)) {
       throw new BadRequestError('Email must be valid');

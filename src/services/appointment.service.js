@@ -2,31 +2,35 @@ const appointmentRepository = require('../repositories/appointment.repository');
 const userRepository = require('../repositories/user.repository');
 const { resolveProfileImage } = require('../utils/profile-image');
 const {
+  createConsultationTypeOption,
+  normalizeConsultationType,
+} = require('../constants/consultation-types');
+const {
   BadRequestError,
   ConflictError,
   ForbiddenError,
   NotFoundError,
 } = require('../utils/api-error');
 
-const consultationTypes = {
-  telemedicine: {
-    label: 'Telemedicine',
-    fee: 45,
-  },
-  in_clinic: {
-    label: 'In Clinic',
-    fee: 60,
-  },
-  home_visit: {
-    label: 'Home Visit',
-    fee: 120,
-  },
-  nearby_hub: {
-    label: 'Nearby Hub',
-    fee: 0,
-    disabled: true,
-  },
-};
+function getDoctorConsultationTypes(doctor) {
+  if (Array.isArray(doctor.profile.consultationTypes) && doctor.profile.consultationTypes.length > 0) {
+    return doctor.profile.consultationTypes;
+  }
+
+  if (doctor.profile.clinic?.consultationFees) {
+    return [createConsultationTypeOption('in_clinic', doctor.profile.clinic.consultationFees)];
+  }
+
+  return [];
+}
+
+function findDoctorConsultationType(doctor, type) {
+  const normalizedType = normalizeConsultationType(type);
+
+  return getDoctorConsultationTypes(doctor).find(
+    (consultationType) => consultationType.type === normalizedType
+  );
+}
 
 function createDoctorSummary(doctor) {
   return {
@@ -40,7 +44,7 @@ function createDoctorSummary(doctor) {
     yearsOfExperience: doctor.profile.registration.yearsOfExperience,
     clinicName: doctor.profile.clinic.clinicName,
     cityState: doctor.profile.clinic.cityState,
-    consultationFees: doctor.profile.clinic.consultationFees,
+    consultationTypes: getDoctorConsultationTypes(doctor),
     availableTimings: doctor.profile.clinic.availableTimings,
     practiceAddress: doctor.profile.clinic.practiceAddress,
     bio: doctor.profile.bio,
@@ -105,19 +109,19 @@ async function createAppointment(patientId, payload) {
     throw new NotFoundError('Doctor not found');
   }
 
-  const consultation = consultationTypes[payload.consultationType];
+  const consultation = findDoctorConsultationType(doctor, payload.consultationType);
 
-  if (!consultation || consultation.disabled) {
-    throw new BadRequestError('Consultation type is not available');
+  if (!consultation) {
+    throw new BadRequestError('This doctor does not offer the selected consultation type');
   }
 
   try {
     const appointment = await appointmentRepository.createAppointment({
       patient: patient.id,
       doctor: doctor.id,
-      consultationType: payload.consultationType,
+      consultationType: consultation.type,
       consultationLabel: consultation.label,
-      consultationFee: payload.consultationFee ?? consultation.fee,
+      consultationFee: consultation.fee,
       appointmentDate: payload.appointmentDate,
       appointmentTime: payload.appointmentTime,
       timezone: payload.timezone || '',

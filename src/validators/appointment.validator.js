@@ -1,6 +1,8 @@
 const { BadRequestError } = require('../utils/api-error');
-
-const allowedConsultationTypes = ['telemedicine', 'in_clinic', 'home_visit', 'nearby_hub'];
+const {
+  allowedConsultationTypeIds,
+  normalizeConsultationType,
+} = require('../constants/consultation-types');
 
 function isNonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
@@ -19,8 +21,10 @@ function validateCreateAppointment(req, res, next) {
     return next(new BadRequestError('Doctor id is required'));
   }
 
-  if (!allowedConsultationTypes.includes(consultationType)) {
-    return next(new BadRequestError('Consultation type is required'));
+  if (!allowedConsultationTypeIds.includes(normalizeConsultationType(consultationType))) {
+    return next(
+      new BadRequestError('Consultation type must be telemedicine, in_clinic, or home_visit')
+    );
   }
 
   if (!isNonEmptyString(appointmentDate)) {

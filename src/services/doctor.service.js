@@ -1,6 +1,19 @@
 const userRepository = require('../repositories/user.repository');
 const { NotFoundError } = require('../utils/api-error');
 const { resolveProfileImage } = require('../utils/profile-image');
+const { createConsultationTypeOption } = require('../constants/consultation-types');
+
+function getDoctorConsultationTypes(doctor) {
+  if (Array.isArray(doctor.profile.consultationTypes) && doctor.profile.consultationTypes.length > 0) {
+    return doctor.profile.consultationTypes;
+  }
+
+  if (doctor.profile.clinic?.consultationFees) {
+    return [createConsultationTypeOption('in_clinic', doctor.profile.clinic.consultationFees)];
+  }
+
+  return [];
+}
 
 function createDoctorListItem(doctor) {
   return {
@@ -15,7 +28,7 @@ function createDoctorListItem(doctor) {
     yearsOfExperience: doctor.profile.registration.yearsOfExperience,
     clinicName: doctor.profile.clinic.clinicName,
     cityState: doctor.profile.clinic.cityState,
-    consultationFees: doctor.profile.clinic.consultationFees,
+    consultationTypes: getDoctorConsultationTypes(doctor),
     availableTimings: doctor.profile.clinic.availableTimings,
     bio: doctor.profile.bio,
     languagesSpoken: doctor.profile.languagesSpoken,
@@ -43,10 +56,10 @@ function createDoctorDetail(doctor) {
     clinic: {
       clinicName: clinic.clinicName,
       cityState: clinic.cityState,
-      consultationFees: clinic.consultationFees,
       availableTimings: clinic.availableTimings,
       practiceAddress: clinic.practiceAddress,
     },
+    consultationTypes: getDoctorConsultationTypes(doctor),
     contactOptions: {
       video: true,
       call: Boolean(doctor.mobileNumber),

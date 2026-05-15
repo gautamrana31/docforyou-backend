@@ -1,4 +1,5 @@
 const { defaultProfileImages } = require('../constants/defaults');
+const { createConsultationTypeOption } = require('../constants/consultation-types');
 const userRepository = require('../repositories/user.repository');
 const { ConflictError, UnauthorizedError } = require('../utils/api-error');
 const { comparePassword, hashPassword } = require('../utils/password');
@@ -70,10 +71,12 @@ async function signupDoctor(payload) {
       clinic: {
         clinicName: payload.clinicName,
         cityState: payload.cityState,
-        consultationFees: payload.consultationFees || '',
         availableTimings: payload.availableTimings,
         practiceAddress: payload.practiceAddress,
       },
+      consultationTypes: payload.availableConsultationTypes.map((consultationType) =>
+        createConsultationTypeOption(consultationType.type, consultationType.fee)
+      ),
       documents: {
         medicalLicenseCertificate: payload.medicalLicenseCertificate,
         idProof: payload.idProof || '',

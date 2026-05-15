@@ -1,29 +1,13 @@
-const consultationTypes = [
-  {
-    id: 'telemedicine',
-    name: 'Telemedicine',
-    description: 'Safe video call from home',
-    fee: 45,
-    available: true,
-  },
-  {
-    id: 'in_clinic',
-    name: 'In Clinic',
-    description: 'Visit the medical center',
-    fee: 60,
-    available: true,
-  },
-  {
-    id: 'home_visit',
-    name: 'Home Visit',
-    description: 'Doctor comes to you',
-    fee: 120,
-    available: true,
-  },
-];
+const { consultationTypeMap } = require('../constants/consultation-types');
 
 function getConsultationTypes() {
-  return consultationTypes;
+  return Object.entries(consultationTypeMap).map(([id, consultationType]) => ({
+    id,
+    name: consultationType.label,
+    description: consultationType.description,
+    defaultFee: consultationType.defaultFee,
+    available: true,
+  }));
 }
 
 module.exports = { getConsultationTypes };
